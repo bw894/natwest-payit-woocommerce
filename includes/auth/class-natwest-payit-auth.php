@@ -25,17 +25,7 @@ class NatWest_PayIt_Auth {
             'body' => http_build_query([
                 'grant_type'    => 'client_credentials',
                 'client_id'     => $client_id,
-                'client_secret' => $client_secret,
-
-                /**
-                 * NOTE:
-                 * This "resource" value is often environment/product specific.
-                 * If you continue seeing 401 on merchant-payments even with a token,
-                 * this is the first parameter to confirm with NatWest PayIt docs.
-                 */
-                'resource'      => defined('NATWEST_PAYIT_OAUTH_RESOURCE')
-                    ? NATWEST_PAYIT_OAUTH_RESOURCE
-                    : 'https://lp2api.natwestpayit.com'
+                'client_secret' => $client_secret
             ]),
             'timeout' => 30
         ];
