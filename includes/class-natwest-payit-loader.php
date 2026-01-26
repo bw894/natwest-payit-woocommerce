@@ -4,6 +4,8 @@ if (!defined('ABSPATH')) exit;
 class NatWest_PayIt_Loader {
 
     public static function init() {
+        require_once __DIR__ . '/admin/class-natwest-payit-admin.php';
+        NatWest_PayIt_Admin::init();
 
         require_once __DIR__ . '/class-natwest-payit-constants.php';
 
