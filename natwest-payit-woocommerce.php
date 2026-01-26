@@ -2,7 +2,7 @@
 /**
  * Plugin Name: NatWest PayIt for WooCommerce
  * Description: NatWest PayIt (Pay by Bank) Hosted Journey integration for WooCommerce
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: Ben Wiser
  */
 
