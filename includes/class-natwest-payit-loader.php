@@ -4,8 +4,15 @@ if (!defined('ABSPATH')) exit;
 class NatWest_PayIt_Loader {
 
     public static function init() {
+
+        // Admin/settings should always load (so you can configure even if WC isn't fully ready yet)
         require_once __DIR__ . '/admin/class-natwest-payit-admin.php';
         NatWest_PayIt_Admin::init();
+
+        // Stop here if WooCommerce isn't available
+        if (!class_exists('WC_Payment_Gateway')) {
+            return;
+        }
 
         require_once __DIR__ . '/class-natwest-payit-constants.php';
 
