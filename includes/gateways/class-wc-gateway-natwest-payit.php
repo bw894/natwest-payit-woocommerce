@@ -59,8 +59,9 @@ class WC_Gateway_NatWest_PayIt extends WC_Payment_Gateway {
 
         if (empty($response['redirectUrl'])) {
             wc_add_notice('Unable to start PayIt payment.', 'error');
-            return;
+            return ['result' => 'fail'];
         }
+
 
         $order->update_meta_data('_payit_tpp_reference', $response['tppReference']);
         $order->update_status('pending', 'Awaiting NatWest PayIt payment');
