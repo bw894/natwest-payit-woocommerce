@@ -13,6 +13,10 @@ class WC_Gateway_NatWest_PayIt extends WC_Payment_Gateway {
         $this->init_form_fields();
         $this->init_settings();
 
+        $this->enabled     = $this->get_option('enabled');
+        $this->title       = $this->get_option('title', 'Pay by Bank (NatWest PayIt)');
+        $this->description = $this->get_option('description', '');
+
         add_action(
             'woocommerce_update_options_payment_gateways_' . $this->id,
             [$this, 'process_admin_options']
@@ -30,6 +34,11 @@ class WC_Gateway_NatWest_PayIt extends WC_Payment_Gateway {
                 'title' => 'Title',
                 'type' => 'text',
                 'default' => 'Pay by Bank (NatWest PayIt)'
+            ],
+            'description' => [
+                'title' => 'Description',
+                'type'  => 'textarea',
+                'default' => 'Pay securely by bank transfer using NatWest PayIt.'
             ],
         ];
     }
