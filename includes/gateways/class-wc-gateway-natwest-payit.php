@@ -31,38 +31,21 @@ class WC_Gateway_NatWest_PayIt extends WC_Payment_Gateway {
                 'type' => 'text',
                 'default' => 'Pay by Bank (NatWest PayIt)'
             ],
-            'client_id' => [
-                'title' => 'Client ID',
-                'type' => 'text'
-            ],
-            'client_secret' => [
-                'title' => 'Client Secret',
-                'type' => 'password'
-            ],
-            'company_id' => [
-                'title' => 'Company ID',
-                'type' => 'text'
-            ],
-            'brand_id' => [
-                'title' => 'Brand ID',
-                'type' => 'text'
-            ],
         ];
     }
 
     public function process_payment($order_id) {
 
         $order = wc_get_order($order_id);
-
+        $settings = NatWest_PayIt_Admin::get();
         $api = new NatWest_PayIt_Payments(
-            $this->get_option('client_id'),
-            $this->get_option('client_secret')
+            $settings['client_id'],
+            $settings['client_secret']
         );
-
         $response = $api->create_payment(
             $order,
-            $this->get_option('company_id'),
-            $this->get_option('brand_id')
+            $settings['company_id'],
+            $settings['brand_id']
         );
 
         if (empty($response['redirectUrl'])) {
