@@ -52,6 +52,7 @@ class NatWest_PayIt_Payments extends NatWest_PayIt_API {
             [
                 // NatWest requirement: pass E2E value here
                 'x-transaction-id' => $transaction_id
+                'Accept'           => 'application/app.v3+json',
             ]
         );
     }
