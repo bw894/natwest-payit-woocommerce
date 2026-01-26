@@ -35,7 +35,7 @@ class NatWest_PayIt_Auth {
                  */
                 'resource'      => defined('NATWEST_PAYIT_OAUTH_RESOURCE')
                     ? NATWEST_PAYIT_OAUTH_RESOURCE
-                    : 'https://natwestpayit.com'
+                    : 'https://lp2api.natwestpayit.com'
             ]),
             'timeout' => 30
         ];
