@@ -18,12 +18,10 @@ class NatWest_PayIt_API {
      */
     protected function ensure_token() {
 
-        // Token already present and looks valid
         if (!empty($this->token) && is_string($this->token)) {
             return true;
         }
 
-        // Attempt to fetch token
         if (!class_exists('NatWest_PayIt_Auth')) {
             require_once NATWEST_PAYIT_PLUGIN_PATH . 'includes/auth/class-natwest-payit-auth.php';
         }
@@ -34,14 +32,8 @@ class NatWest_PayIt_API {
         );
 
         if (empty($token) || !is_string($token)) {
-            NatWest_PayIt_Logger::log(
-                'Failed to obtain valid PayIt access token.',
-                'error'
-            );
-            NatWest_PayIt_Logger::log(
-                ['token_returned' => $token],
-                'error'
-            );
+            NatWest_PayIt_Logger::log('Failed to obtain valid PayIt access token.', 'error');
+            NatWest_PayIt_Logger::log(['token_returned' => $token], 'error');
             return false;
         }
 
@@ -51,20 +43,33 @@ class NatWest_PayIt_API {
 
     /**
      * Perform an authenticated API request
+     *
+     * @param string $method
+     * @param string $endpoint
+     * @param array|null $body
+     * @param array $extra_headers  Additional headers to merge into the request headers
+     * @return array
      */
-    protected function request($method, $endpoint, $body = null) {
+    protected function request($method, $endpoint, $body = null, $extra_headers = []) {
 
-        // Ensure token exists
         if (!$this->ensure_token()) {
             return [];
         }
 
+        $base_headers = [
+            'Authorization' => 'Bearer ' . $this->token,
+            'Content-Type'  => 'application/json',
+            'Accept'        => 'application/json'
+        ];
+
+        // Normalise header keys (some APIs are picky; WP will send them as provided)
+        if (!is_array($extra_headers)) {
+            $extra_headers = [];
+        }
+
         $args = [
             'method'  => $method,
-            'headers' => [
-                'Authorization' => 'Bearer ' . $this->token,
-                'Content-Type'  => 'application/json'
-            ],
+            'headers' => array_merge($base_headers, $extra_headers),
             'timeout' => 30
         ];
 
@@ -73,25 +78,32 @@ class NatWest_PayIt_API {
         }
 
         $url = NatWest_PayIt_Constants::API_BASE . $endpoint;
+
+        // Debug request payload and safe headers (avoid logging Authorization)
+        $log_headers = $args['headers'];
+        if (isset($log_headers['Authorization'])) {
+            $log_headers['Authorization'] = '[REDACTED]';
+        }
+
+        NatWest_PayIt_Logger::log([
+            'url'          => $url,
+            'endpoint'     => $endpoint,
+            'http_method'  => $method,
+            'headers'      => $log_headers,
+            'request_body' => isset($args['body']) ? $args['body'] : null
+        ], 'debug');
+
         $response = wp_remote_request($url, $args);
 
-        // Transport-level failure
         if (is_wp_error($response)) {
-            NatWest_PayIt_Logger::log(
-                'API request WP_Error: ' . $response->get_error_message(),
-                'error'
-            );
-            NatWest_PayIt_Logger::log(
-                ['url' => $url, 'endpoint' => $endpoint],
-                'error'
-            );
+            NatWest_PayIt_Logger::log('API request WP_Error: ' . $response->get_error_message(), 'error');
+            NatWest_PayIt_Logger::log(['url' => $url, 'endpoint' => $endpoint], 'error');
             return [];
         }
 
         $code = wp_remote_retrieve_response_code($response);
         $raw  = wp_remote_retrieve_body($response);
 
-        // Log full response for debugging
         NatWest_PayIt_Logger::log(
             [
                 'url'       => $url,
