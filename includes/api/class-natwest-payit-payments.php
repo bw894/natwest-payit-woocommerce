@@ -13,6 +13,19 @@ class NatWest_PayIt_Payments extends NatWest_PayIt_API {
         $order_number = (string) $order->get_order_number();
         $billing_city = (string) $order->get_billing_city() ?: 'London';
 
+        /**
+         * IMPORTANT:
+         * Do NOT send users back to /checkout/ because PayIt adds query params like `s=...`
+         * which WordPress interprets as a search request (breaking routing).
+         *
+         * Use a wc-api endpoint instead.
+         */
+        $redirect_url = add_query_arg([
+            'wc-api'   => 'natwest_payit_return',
+            'order_id' => $order->get_id(),
+            'key'      => $order->get_order_key(),
+        ], home_url('/'));
+
         $payload = [
             'Data' => [
                 'companyId' => (string) $company_id,
@@ -23,7 +36,7 @@ class NatWest_PayIt_Payments extends NatWest_PayIt_API {
                 'country'             => 'UK',
                 'fpReference'          => 'WC-' . $order_number,
                 'description'          => 'Payment for order ' . $order_number,
-                'redirectUrl'          => $order->get_checkout_order_received_url(),
+                'redirectUrl'          => $redirect_url,
                 'paymentContext' => [
                     'deliveryAddress' => [
                         'countryCode' => 'GB',
